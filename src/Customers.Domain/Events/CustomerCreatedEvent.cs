@@ -1,4 +1,5 @@
 using Customers.Domain.Primitives;
+using Customers.Domain.ValueObjects;
 
 namespace Customers.Domain.Events;
 
@@ -9,7 +10,7 @@ public sealed record CustomerCreatedEvent(
     DateOnly DateOfBirth,
     string PhoneNumber,
     string Email,
-    string bankAccountNumber,
+    string BankAccountNumber,
     DateTime OccurredAtUTC
 ) : DomainEvent(OccurredAtUTC);
 
