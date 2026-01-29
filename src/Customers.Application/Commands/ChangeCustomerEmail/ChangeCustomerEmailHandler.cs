@@ -4,9 +4,10 @@ using MediatR;
 
 namespace Customers.Application.Commands.ChangeCustomerEmail;
 
-public sealed class ChangeCustomerEmailHandler(IEventStore eventStore) : IRequestHandler<ChangeCustomerEmailCommand>
+public sealed class ChangeCustomerEmailHandler(IEventStore eventStore, IEventDispatcher eventDispatcher) : IRequestHandler<ChangeCustomerEmailCommand>
 {
     private readonly IEventStore _eventStore = eventStore;
+    private readonly IEventDispatcher _eventDispatcher = eventDispatcher;
     public async Task Handle(ChangeCustomerEmailCommand request, CancellationToken cancellationToken)
     {
         var history = await _eventStore.LoadStreamAsync(request.CustomerId, cancellationToken);
@@ -26,6 +27,8 @@ public sealed class ChangeCustomerEmailHandler(IEventStore eventStore) : IReques
                    events: eventsToAppend,
                    ct: cancellationToken
                );
+
+        await _eventDispatcher.DispatchEvents(eventsToAppend, cancellationToken);
 
         customer.ClearUncommittedEvents();
     }

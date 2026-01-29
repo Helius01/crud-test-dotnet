@@ -5,9 +5,10 @@ using MediatR;
 
 namespace Customers.Application.Commands.CreateCustomer;
 
-public sealed class CreateCustomerHandler(IEventStore eventStore) : IRequestHandler<CreateCustomerCommand, Guid>
+public sealed class CreateCustomerHandler(IEventStore eventStore, IEventDispatcher eventDispatcher) : IRequestHandler<CreateCustomerCommand, Guid>
 {
     private readonly IEventStore _eventStore = eventStore;
+    private readonly IEventDispatcher _eventDispatcher = eventDispatcher;
     public async Task<Guid> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
         var customer = Customer.Create(
@@ -28,6 +29,11 @@ public sealed class CreateCustomerHandler(IEventStore eventStore) : IRequestHand
             events: eventsToAppend,
             ct: cancellationToken
         );
+
+        await _eventDispatcher.DispatchEvents(
+            eventsToAppend,
+            cancellationToken);
+
 
         customer.ClearUncommittedEvents();
         return request.Id;
