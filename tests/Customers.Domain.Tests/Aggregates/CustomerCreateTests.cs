@@ -1,5 +1,6 @@
 using Customers.Domain.Aggregates;
 using Customers.Domain.Events;
+using Customers.Domain.ValueObjects;
 using FluentAssertions;
 
 namespace Customers.Domain.Tests.Aggregates;
@@ -17,7 +18,7 @@ public class CustomerCreateTests
             lastName: "Abedi",
             dateOfBirth: new DateOnly(2001, 05, 15),
             phoneNumber: "091011111111",
-            email: "m.a.com",
+            email: Email.Create("abedi@mail.com"),
             bankAccountNumber: "AZ00TEST1234567890"
         );
 
@@ -27,6 +28,6 @@ public class CustomerCreateTests
         ev.Id.Should().Be(id);
         ev.FirstName.Should().Be("Mohammad");
         ev.LastName.Should().Be("Abedi");
-        ev.Email.Should().Be("m.a.com");
+        ev.Email.Should().Be("abedi@mail.com");
     }
 }

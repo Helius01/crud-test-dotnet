@@ -1,5 +1,6 @@
 using Customers.Domain.Events;
 using Customers.Domain.Primitives;
+using Customers.Domain.ValueObjects;
 
 namespace Customers.Domain.Aggregates;
 
@@ -16,13 +17,13 @@ public sealed class Customer
         string lastName,
         DateOnly dateOfBirth,
         string phoneNumber,
-        string email,
+        Email email,
         string bankAccountNumber)
     {
         // NOTE: validation comes later
         var customer = new Customer();
         customer.Raise(new CustomerCreatedEvent(
-            id, firstName, lastName, dateOfBirth, phoneNumber, email, bankAccountNumber, DateTime.UtcNow
+            id, firstName, lastName, dateOfBirth, phoneNumber, email.ToString(), bankAccountNumber, DateTime.UtcNow
         ));
         return customer;
     }
