@@ -36,6 +36,21 @@ public sealed class Customer : AggregateRoot
         return customer;
     }
 
+    public void ChangeEmail(string newEmail)
+    {
+        var normalized = Email.Create(newEmail).Value;
+
+        if (Email.Value == normalized)
+            throw new InvalidOperationException("Email is already set to this value.");
+
+        Raise(new CustomerEmailChangedEvent(
+            Id: Id,
+            NewEmail: normalized,
+            OccurredAtUTC: DateTime.UtcNow
+        ));
+    }
+
+
     public static Customer FromHistory(IEnumerable<DomainEvent> history)
     {
         var customer = new Customer();
@@ -56,6 +71,9 @@ public sealed class Customer : AggregateRoot
                 PhoneNumber = e.PhoneNumber;
                 Email = Email.Create(e.Email);
                 BankAccountNumber = e.BankAccountNumber;
+                break;
+            case CustomerEmailChangedEvent e:
+                Email = Email.Create(e.NewEmail);
                 break;
             default:
                 throw new InvalidOperationException(
