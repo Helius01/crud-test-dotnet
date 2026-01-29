@@ -22,9 +22,9 @@ public class CustomerCreateTests
             bankAccountNumber: "AZ00TEST1234567890"
         );
 
-        customer.UncommittedEvents.Should().ContainSingle();
+        customer.UnCommittedEvents.Should().ContainSingle();
 
-        var ev = customer.UncommittedEvents.Single().Should().BeOfType<CustomerCreatedEvent>().Subject;
+        var ev = customer.UnCommittedEvents.Single().Should().BeOfType<CustomerCreatedEvent>().Subject;
         ev.Id.Should().Be(id);
         ev.FirstName.Should().Be("Mohammad");
         ev.LastName.Should().Be("Abedi");

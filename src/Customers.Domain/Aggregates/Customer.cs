@@ -4,10 +4,15 @@ using Customers.Domain.ValueObjects;
 
 namespace Customers.Domain.Aggregates;
 
-public sealed class Customer
+public sealed class Customer : AggregateRoot
 {
-    private readonly List<DomainEvent> _uncommitted = new();
-    public IReadOnlyList<DomainEvent> UncommittedEvents => _uncommitted;
+    public Guid Id { get; private set; }
+    public string FirstName { get; private set; } = default!;
+    public string LastName { get; private set; } = default!;
+    public DateOnly DateOfBirth { get; private set; }
+    public string PhoneNumber { get; private set; } = default!;
+    public Email Email { get; private set; } = default!;
+    public string BankAccountNumber { get; private set; } = default!;
 
     private Customer() { }
 
@@ -22,15 +27,39 @@ public sealed class Customer
     {
         // NOTE: validation comes later
         var customer = new Customer();
+        var normalizedEmail = email.Value;
+
         customer.Raise(new CustomerCreatedEvent(
-            id, firstName, lastName, dateOfBirth, phoneNumber, email.ToString(), bankAccountNumber, DateTime.UtcNow
+            id, firstName, lastName, dateOfBirth, phoneNumber, normalizedEmail, bankAccountNumber, DateTime.UtcNow
         ));
+
         return customer;
     }
 
-    private void Raise(DomainEvent @event)
+    public static Customer FromHistory(IEnumerable<DomainEvent> history)
     {
-        _uncommitted.Add(@event);
-        // NOTE : Event sourcing comes later
+        var customer = new Customer();
+        customer.LoadFromHistory(history);
+        customer.ClearUncommittedEvents();
+        return customer;
+    }
+
+    protected override void Apply(DomainEvent @event)
+    {
+        switch (@event)
+        {
+            case CustomerCreatedEvent e:
+                Id = e.Id;
+                FirstName = e.FirstName;
+                LastName = e.LastName;
+                DateOfBirth = e.DateOfBirth;
+                PhoneNumber = e.PhoneNumber;
+                Email = Email.Create(e.Email);
+                BankAccountNumber = e.BankAccountNumber;
+                break;
+            default:
+                throw new InvalidOperationException(
+                    $"Unsupported event type '{@event.GetType().Name}' in {nameof(Customer)}");
+        }
     }
 }
