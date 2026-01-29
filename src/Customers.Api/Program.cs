@@ -1,3 +1,4 @@
+using Customers.Api.Endpoints;
 using Customers.Application.Abstractions;
 using Customers.Application.ReadModel;
 using Customers.Infrastructure.EventStore;
@@ -38,6 +39,7 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
+app.MapCustomers();
 app.MapGet("/", () => Results.Ok("Customers API is running"));
 
 app.Run();
