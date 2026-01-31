@@ -8,6 +8,12 @@ namespace Customers.Application.Tests.Commands.ChangeCustomerEmail;
 
 public class ChangeCustomerEmailHandlerTests
 {
+    private sealed class NoOpEventDispatcher : IEventDispatcher
+    {
+        public Task DispatchEvents(IReadOnlyList<DomainEvent> events, CancellationToken ct = default) => Task.CompletedTask;
+    }
+
+
     private sealed class FakeEventStore : IEventStore
     {
         private readonly IReadOnlyList<DomainEvent> _history;
@@ -47,7 +53,9 @@ public class ChangeCustomerEmailHandlerTests
         IReadOnlyList<DomainEvent> history = Array.Empty<DomainEvent>();
 
         var store = new FakeEventStore(history);
-        var handler = new ChangeCustomerEmailHandler(store);
+        var dispatcher = new NoOpEventDispatcher();
+
+        var handler = new ChangeCustomerEmailHandler(store, dispatcher);
 
         var act = async () => await handler.Handle(
             new ChangeCustomerEmailCommand(id, "new@example.com"),
@@ -79,7 +87,8 @@ public class ChangeCustomerEmailHandlerTests
         ];
 
         var store = new FakeEventStore(history);
-        var handler = new ChangeCustomerEmailHandler(store);
+        var dispatcher = new NoOpEventDispatcher();
+        var handler = new ChangeCustomerEmailHandler(store, dispatcher);
 
         var cmd = new ChangeCustomerEmailCommand(id, "new@example.com");
 
